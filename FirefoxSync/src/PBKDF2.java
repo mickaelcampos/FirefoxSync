@@ -1,4 +1,3 @@
-
 import org.apache.commons.codec.binary.Hex;
 
 import javax.crypto.SecretKeyFactory;
@@ -7,9 +6,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import javax.crypto.SecretKey;
 
-/**
- * User: Carla Date: Fevereiro 2021
- */
+
 public final class PBKDF2 {
 
     private static PBKDF2 instance = null;

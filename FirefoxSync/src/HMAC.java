@@ -6,11 +6,6 @@ import javax.crypto.KeyGenerator;
 import javax.crypto.Mac;
 
 
-/**
- *
- * @author Carla Este exemplo mostra o uso da classe HMac da BouncyCastle.
- * Fevereiro 2021.
- */
 public final class HMAC {
     
     private static HMAC instance = null;

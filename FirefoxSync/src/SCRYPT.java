@@ -1,5 +1,3 @@
-
-
 import org.bouncycastle.crypto.PBEParametersGenerator;
 import org.bouncycastle.crypto.generators.SCrypt;
 import org.bouncycastle.jcajce.spec.ScryptKeySpec;

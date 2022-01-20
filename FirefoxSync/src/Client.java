@@ -1,19 +1,13 @@
-
 import java.security.Security;
 import java.util.Scanner;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import java.util.ArrayList; 
 
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
-/**
- *
- * @author m1k4
- */
 public class Client {
 
     private Scanner input = new Scanner(System.in);
+    
+    private ArrayList<String> data = new ArrayList<String>();
 
     public static void main(String[] args) {
         Security.addProvider(new BouncyCastleProvider());
@@ -34,6 +28,8 @@ public class Client {
     public void handleWithOption(String option) {
         switch (option) {
             case "1":
+                this.registerData();
+                this.mainMenu();
                 return;
             case "2":
                 this.registerUser();
@@ -57,9 +53,9 @@ public class Client {
 
         String derivedKey = PBKDF2.getInstance().getDerivedKey(password);
 
-        String hashedKeyDerivated = HMAC.getInstance().getDerivatedKey(derivedKey);  // HKDF(derivedKey); usando HMAC
+        String hashedKeyDerivated = HMAC.getInstance().getDerivatedKey(derivedKey);
 
-        String authenticationToken = hashedKeyDerivated; // transformar em JWT????
+        String authenticationToken = hashedKeyDerivated;
 
         boolean isSignUpSuccess = SyncServer.getInstance().signUp(username, authenticationToken);
 
@@ -91,6 +87,11 @@ public class Client {
 
     private boolean passwordsMatch(String password, String toCompare) {
         return password.equals(toCompare);
+    }
+    
+    private void registerData() {
+        print("Digite o dado a ser inserido:");
+        this.data.add(this.input.nextLine());
     }
 
     private void print(String s) {
