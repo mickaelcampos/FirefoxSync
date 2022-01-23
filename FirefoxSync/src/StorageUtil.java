@@ -35,14 +35,14 @@ public class StorageUtil {
         return true;
     }
 
-    public static boolean saveData(String data) {
+    public static boolean saveData(String data, String username) {
         String database = StorageUtil.getDataBase();
 
         JSONArray databaseJSON = new JSONArray(database);
 
         for (int i = 0; i < databaseJSON.length(); i++) {
             JSONObject userAsJSON = (JSONObject) databaseJSON.getJSONObject(i);
-            if (userAsJSON.get("name").equals("mickael")) { // TODO parametrizar o username
+            if (userAsJSON.get("name").equals(username)) {
                 userAsJSON.append("data", data);
                 StorageUtil.writeFile(dataBasePath, databaseJSON.toString(indentFactor));
                 return true;

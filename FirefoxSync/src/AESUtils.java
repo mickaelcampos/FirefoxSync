@@ -109,7 +109,7 @@ public class AESUtils {
             byte[] bytes,
             int length) {
         char[] chars = new char[length];
-        System.out.println("LENGTH: " + length);
+        System.out.println(">>>> LENGTH: " + length);
 
         for (int i = 0; i != chars.length; i++) {
             chars[i] = (char) (bytes[i] & 0xff);

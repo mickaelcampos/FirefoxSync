@@ -3,6 +3,7 @@ import java.security.Security;
 import java.util.Scanner;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import java.util.ArrayList;
+import java.util.List;
 
 public class Client {
 
@@ -18,7 +19,7 @@ public class Client {
     public void mainMenu() {
         print("1. Cadastrar dados do cliente");
         print("2. Cadastrar contas de clientes no servidor Sync");
-        print("3. Autenticar cliente no servidor Sync");
+        // print("3. Autenticar cliente no servidor Sync");
         print("4. Armazenar dados do cliente no servidor Sync");
         print("5. Obter dados e exibir na tela;");
 
@@ -105,14 +106,23 @@ public class Client {
     }
 
     private void registerDataOnSyncServer() {
-        print(this.data.toString());
+        
+        String username = this.askUserName();
+
+        String password = this.askPassword();
+        
+        String derivedKey = PBKDF2.getInstance().getDerivedKey(password);
+
+        String hashedKeyDerivated = HMAC.getInstance().getDerivatedKey(derivedKey);
+
+        String authenticationToken = hashedKeyDerivated;
 
         AES aes = new AES();
         try {
             print("[Client] this.data.toString(): " + this.data.toString());
             print("[Client] this.data.toString() LENGTH: " + this.data.toString().length());
             String encryptedData = aes.encrypt(this.data.toString());
-            boolean isRegistered = SyncServer.getInstance().registerData(encryptedData);
+            boolean isRegistered = SyncServer.getInstance().registerData(encryptedData, username, authenticationToken);
             if (isRegistered) {
                 this.data.clear();
             }
@@ -123,8 +133,6 @@ public class Client {
     }
 
     private void getDataAndShow() {
-        ArrayList<String> dataToDisplay = new ArrayList<String>();
-
         String username = this.askUserName();
 
         String password = this.askPassword();
@@ -135,15 +143,26 @@ public class Client {
 
         String authenticationToken = hashedKeyDerivated;
 
-        String encryptedData = SyncServer.getInstance().getData(username, authenticationToken); // TODO enviar username/hashedtoken
-        print("[Client] encryptedData: " + encryptedData);
+        List<Object> encryptedDataList = SyncServer.getInstance().getData(username, authenticationToken); // TODO enviar username/hashedtoken
+        print("[Client] encryptedData: " + encryptedDataList);
 
         AES aes = new AES();
         try {
-            String decryptedData = aes.decrypt(encryptedData);
-            print("[Client] decryptedData: " + decryptedData);
+            String decryptedData = null;
+            for (Object encryptedData : encryptedDataList) {
+                decryptedData = aes.decrypt(encryptedData.toString());
+                formatAndPrintDecrypt(decryptedData);
+            }
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+    
+    private void formatAndPrintDecrypt(String toFormat) {
+        String formatted = toFormat.replace("[", "").replace("]", ""); //  batata, cachorro
+        String[] splitted = formatted.split(","); // ["batata", "cachorro"]
+        for (String string : splitted) {
+            print("[Client] data: " + string);
         }
     }
 
