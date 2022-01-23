@@ -19,8 +19,8 @@ public class SCRYPTUtil {
 
         try {
             // TODO fixar esse salt???
-            byte[] salt = this.getSalt(); // 128 bits - 16 bytes
-
+            // byte[] salt = this.getSalt(); // 128 bits - 16 bytes
+            byte[] salt = new byte[16]; // TODO
             int costParameter = 2048; // exemplo: 2048 (afeta uso de memória e CPU)
 
             int blocksize = 8; // exemplo: 8

@@ -1,12 +1,13 @@
+
 import java.security.Security;
 import java.util.Scanner;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
-import java.util.ArrayList; 
+import java.util.ArrayList;
 
 public class Client {
 
     private Scanner input = new Scanner(System.in);
-    
+
     private ArrayList<String> data = new ArrayList<String>();
 
     public static void main(String[] args) {
@@ -38,18 +39,22 @@ public class Client {
             case "3":
                 break;
             case "4":
+                this.registerDataOnSyncServer();
+                this.mainMenu();
                 break;
             case "5":
+                this.getDataAndShow();
+                this.mainMenu();
                 break;
             default:
                 throw new AssertionError();
         }
     }
 
-    public void registerUser() {
+    private void registerUser() {
         String username = this.askUserName();
 
-        String password = this.askPassword();
+        String password = this.askNewPassword();
 
         String derivedKey = PBKDF2.getInstance().getDerivedKey(password);
 
@@ -69,29 +74,77 @@ public class Client {
 
     private String askUserName() {
         print("Digite o nome do seu usuário:");
-        return this.input.nextLine(); // TODO validar se já existe usuario com esse nome
+        return this.input.nextLine();
     }
 
-    private String askPassword() {
-        System.out.println("Digite uma senha:");
+    private String askNewPassword() {
+        print("Digite uma senha:");
         String password = this.input.nextLine(); // TODO validar senha fraca
-        System.out.println("Confirme a senha:");
+        print("Confirme a senha:");
         String confirmPassword = this.input.nextLine();
         if (this.passwordsMatch(password, confirmPassword)) {
             return password;
         } else {
             print("Senhas não conferem!");
-            return this.askPassword();
+            return this.askNewPassword();
         }
+    }
+
+    private String askPassword() {
+        print("Digite sua senha:");
+        return this.input.nextLine();
     }
 
     private boolean passwordsMatch(String password, String toCompare) {
         return password.equals(toCompare);
     }
-    
+
     private void registerData() {
         print("Digite o dado a ser inserido:");
         this.data.add(this.input.nextLine());
+    }
+
+    private void registerDataOnSyncServer() {
+        print(this.data.toString());
+
+        AES aes = new AES();
+        try {
+            print("[Client] this.data.toString(): " + this.data.toString());
+            print("[Client] this.data.toString() LENGTH: " + this.data.toString().length());
+            String encryptedData = aes.encrypt(this.data.toString());
+            boolean isRegistered = SyncServer.getInstance().registerData(encryptedData);
+            if (isRegistered) {
+                this.data.clear();
+            }
+            print(this.data.toString());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void getDataAndShow() {
+        ArrayList<String> dataToDisplay = new ArrayList<String>();
+
+        String username = this.askUserName();
+
+        String password = this.askPassword();
+
+        String derivedKey = PBKDF2.getInstance().getDerivedKey(password);
+
+        String hashedKeyDerivated = HMAC.getInstance().getDerivatedKey(derivedKey);
+
+        String authenticationToken = hashedKeyDerivated;
+
+        String encryptedData = SyncServer.getInstance().getData(username, authenticationToken); // TODO enviar username/hashedtoken
+        print("[Client] encryptedData: " + encryptedData);
+
+        AES aes = new AES();
+        try {
+            String decryptedData = aes.decrypt(encryptedData);
+            print("[Client] decryptedData: " + decryptedData);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void print(String s) {
