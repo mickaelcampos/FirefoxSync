@@ -1,9 +1,14 @@
 
+import crypto.HMAC;
+import crypto.PBKDF2;
+import crypto.AES;
 import java.security.Security;
 import java.util.Scanner;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import java.util.ArrayList;
-import java.util.List;
+import model.DerivedKey;
+import model.EncryptedData;
+import model.User;
+import org.bouncycastle.jcajce.provider.BouncyCastleFipsProvider;
 
 public class Client {
 
@@ -12,16 +17,15 @@ public class Client {
     private ArrayList<String> data = new ArrayList<String>();
 
     public static void main(String[] args) {
-        Security.addProvider(new BouncyCastleProvider());
+        Security.addProvider(new BouncyCastleFipsProvider());
         new Client().mainMenu();
     }
 
     public void mainMenu() {
         print("1. Cadastrar dados do cliente");
         print("2. Cadastrar contas de clientes no servidor Sync");
-        // print("3. Autenticar cliente no servidor Sync");
-        print("4. Armazenar dados do cliente no servidor Sync");
-        print("5. Obter dados e exibir na tela;");
+        print("3. Armazenar dados do cliente no servidor Sync");
+        print("4. Obter dados e exibir na tela;");
 
         String opt = this.input.nextLine();
         this.handleWithOption(opt);
@@ -38,17 +42,16 @@ public class Client {
                 this.mainMenu();
                 break;
             case "3":
-                break;
-            case "4":
                 this.registerDataOnSyncServer();
                 this.mainMenu();
                 break;
-            case "5":
+            case "4":
                 this.getDataAndShow();
                 this.mainMenu();
                 break;
             default:
-                throw new AssertionError();
+                print("Selecione uma das opções da lista:");
+                this.mainMenu();
         }
     }
 
@@ -57,13 +60,18 @@ public class Client {
 
         String password = this.askNewPassword();
 
-        String derivedKey = PBKDF2.getInstance().getDerivedKey(password);
+        DerivedKey derivedKey = PBKDF2.getInstance().getDerivedKey(password);
 
-        String hashedKeyDerivated = HMAC.getInstance().getDerivatedKey(derivedKey);
+        String key = derivedKey.getDerivedKey();
+        String salt = derivedKey.getSalt();
+
+        String hashedKeyDerivated = HMAC.getInstance().getDerivatedKey(key, salt);
 
         String authenticationToken = hashedKeyDerivated;
+        
+        User user = new User(username, salt);
 
-        boolean isSignUpSuccess = SyncServer.getInstance().signUp(username, authenticationToken);
+        boolean isSignUpSuccess = SyncServer.getInstance().signUp(user, authenticationToken);
 
         if (isSignUpSuccess) {
             print("Usuário registrado com sucesso!");
@@ -80,7 +88,7 @@ public class Client {
 
     private String askNewPassword() {
         print("Digite uma senha:");
-        String password = this.input.nextLine(); // TODO validar senha fraca
+        String password = this.input.nextLine();
         print("Confirme a senha:");
         String confirmPassword = this.input.nextLine();
         if (this.passwordsMatch(password, confirmPassword)) {
@@ -106,27 +114,30 @@ public class Client {
     }
 
     private void registerDataOnSyncServer() {
-        
+
         String username = this.askUserName();
 
         String password = this.askPassword();
-        
-        String derivedKey = PBKDF2.getInstance().getDerivedKey(password);
 
-        String hashedKeyDerivated = HMAC.getInstance().getDerivatedKey(derivedKey);
+        String salt = SyncServer.getInstance().getSalt(username);
+
+        DerivedKey derivedKey = PBKDF2.getInstance().getDerivedKey(password, salt);
+        
+        String key = derivedKey.getDerivedKey();
+        
+        String hashedKeyDerivated = HMAC.getInstance().getDerivatedKey(key, salt);
 
         String authenticationToken = hashedKeyDerivated;
+        
+        String encryptionKey = hashedKeyDerivated;
 
-        AES aes = new AES();
+        AES aes = new AES(encryptionKey);
         try {
-            print("[Client] this.data.toString(): " + this.data.toString());
-            print("[Client] this.data.toString() LENGTH: " + this.data.toString().length());
-            String encryptedData = aes.encrypt(this.data.toString());
+            EncryptedData encryptedData = aes.encrypt(this.data.toString());
             boolean isRegistered = SyncServer.getInstance().registerData(encryptedData, username, authenticationToken);
             if (isRegistered) {
                 this.data.clear();
             }
-            print(this.data.toString());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -136,33 +147,38 @@ public class Client {
         String username = this.askUserName();
 
         String password = this.askPassword();
+        
+        String salt = SyncServer.getInstance().getSalt(username);
 
-        String derivedKey = PBKDF2.getInstance().getDerivedKey(password);
+        DerivedKey derivedKey = PBKDF2.getInstance().getDerivedKey(password, salt);
+        
+        String key = derivedKey.getDerivedKey();
 
-        String hashedKeyDerivated = HMAC.getInstance().getDerivatedKey(derivedKey);
+        String hashedKeyDerivated = HMAC.getInstance().getDerivatedKey(key, salt);
 
         String authenticationToken = hashedKeyDerivated;
 
-        List<Object> encryptedDataList = SyncServer.getInstance().getData(username, authenticationToken); // TODO enviar username/hashedtoken
-        print("[Client] encryptedData: " + encryptedDataList);
+        ArrayList<EncryptedData> encryptedDataList = SyncServer.getInstance().getData(username, authenticationToken);
+        
+        String encryptionKey = hashedKeyDerivated;
 
-        AES aes = new AES();
+        AES aes = new AES(encryptionKey);
         try {
             String decryptedData = null;
-            for (Object encryptedData : encryptedDataList) {
-                decryptedData = aes.decrypt(encryptedData.toString());
+            for (EncryptedData encryptedData : encryptedDataList) {
+                decryptedData = aes.decrypt(encryptedData);
                 formatAndPrintDecrypt(decryptedData);
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
-    
+
     private void formatAndPrintDecrypt(String toFormat) {
-        String formatted = toFormat.replace("[", "").replace("]", ""); //  batata, cachorro
-        String[] splitted = formatted.split(","); // ["batata", "cachorro"]
+        String formatted = toFormat.replace("[", "").replace("]", "");
+        String[] splitted = formatted.split(",");
         for (String string : splitted) {
-            print("[Client] data: " + string);
+            print("dado decifrado: " + string.trim());
         }
     }
 

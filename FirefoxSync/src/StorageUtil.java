@@ -1,6 +1,8 @@
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import model.EncryptedData;
+import model.User;
 import org.apache.commons.io.IOUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -11,31 +13,32 @@ public class StorageUtil {
     static final String dataBasePath = System.getProperty("user.dir") + "/src/database.json";
 
     public static String getDataBase() {
-        return StorageUtil.readFile(dataBasePath); // TODO pode falhar se database.json nao existir, criar neste caso
+        return StorageUtil.readFile(dataBasePath);
     }
 
-    public static boolean saveUser(String username, String authToken) {
+    public static boolean saveUser(User user) {
         String database = StorageUtil.getDataBase();
 
         JSONArray databaseJSON = new JSONArray(database);
 
-        for (Object user : databaseJSON) {
-            JSONObject userAsJSON = (JSONObject) user;
-            if (userAsJSON.get("name").equals(username)) {
+        for (Object obj : databaseJSON) {
+            JSONObject userAsJSON = (JSONObject) obj;
+            if (userAsJSON.get("name").equals(user.getName())) {
                 return false;
             }
         }
 
         databaseJSON.put(new JSONObject()
-                .put("name", username)
-                .put("authorizationToken", authToken)
+                .put("name", user.getName())
+                .put("authorizationToken", user.getScryptHash().getHash())
+                .put("salt", user.getSalt())
+                .put("saltSCRYPT", user.getScryptHash().getSalt())
         );
         StorageUtil.writeFile(dataBasePath, databaseJSON.toString(indentFactor));
-        // TODO armazenar hashedAuthToken/username em arquivo usando criptografia autenticada? Rever necessidade
         return true;
     }
 
-    public static boolean saveData(String data, String username) {
+    public static boolean saveData(EncryptedData data, String username) {
         String database = StorageUtil.getDataBase();
 
         JSONArray databaseJSON = new JSONArray(database);
@@ -43,7 +46,11 @@ public class StorageUtil {
         for (int i = 0; i < databaseJSON.length(); i++) {
             JSONObject userAsJSON = (JSONObject) databaseJSON.getJSONObject(i);
             if (userAsJSON.get("name").equals(username)) {
-                userAsJSON.append("data", data);
+                userAsJSON.append("data",
+                        new JSONObject()
+                                .put("data", data.data)
+                                .put("Nonce", data.Nonce)
+                );
                 StorageUtil.writeFile(dataBasePath, databaseJSON.toString(indentFactor));
                 return true;
             }

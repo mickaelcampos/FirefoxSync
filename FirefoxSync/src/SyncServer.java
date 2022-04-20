@@ -1,6 +1,9 @@
 
+import crypto.SCRYPTFIPS;
 import java.util.ArrayList;
-import java.util.List;
+import model.EncryptedData;
+import model.ScryptHash;
+import model.User;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -15,18 +18,23 @@ public final class SyncServer {
         return instance;
     }
 
-    public boolean signUp(String username, String authenticationToken) {
-        SCRYPTUtil SCRYPTUtil = new SCRYPTUtil();
-        String hashedAuthToken = SCRYPTUtil.getHashedAuthToken(authenticationToken);
-        boolean success = StorageUtil.saveUser(username, hashedAuthToken);
+    public boolean signUp(User user, String authenticationToken) {
+        SCRYPTFIPS SCRYPTUtil = new SCRYPTFIPS();
+        ScryptHash scryptHash = SCRYPTUtil.getHashedAuthToken(authenticationToken);
+
+        user.setScryptHash(scryptHash);
+        boolean success = StorageUtil.saveUser(user);
         return success;
     }
 
-    public boolean registerData(String encryptedData, String username, String authenticationToken) {
-        SCRYPTUtil SCRYPTUtil = new SCRYPTUtil();
-        String hashedAuthToken = SCRYPTUtil.getHashedAuthToken(authenticationToken);
+    public boolean registerData(EncryptedData encryptedData, String username, String authenticationToken) {
+        SCRYPTFIPS SCRYPTUtil = new SCRYPTFIPS();
+
+        String saltSCRYPT = getSaltSCRYPT(username);
+        ScryptHash scryptHash = SCRYPTUtil.getHashedAuthToken(authenticationToken, saltSCRYPT);
+        String hashedAuthToken = scryptHash.getHash();
+
         JSONObject user = StorageUtil.getUser(username);
-        System.out.println("[SyncServer] user: " + user.toString());
         boolean success = false;
         if (user != null) {
             String storageHashedAuthToken = (String) user.get("authorizationToken");
@@ -37,29 +45,51 @@ public final class SyncServer {
         return success;
     }
 
-    public List<Object> getData(String username, String authenticationToken) {
-        SCRYPTUtil SCRYPTUtil = new SCRYPTUtil();
-        String hashedAuthToken = SCRYPTUtil.getHashedAuthToken(authenticationToken);
+    public ArrayList<EncryptedData> getData(String username, String authenticationToken) {
+        SCRYPTFIPS SCRYPTUtil = new SCRYPTFIPS();
+
+        String saltSCRYPT = getSaltSCRYPT(username);
+        ScryptHash scryptHash = SCRYPTUtil.getHashedAuthToken(authenticationToken, saltSCRYPT);
+        String hashedAuthToken = scryptHash.getHash();
+
         JSONObject user = StorageUtil.getUser(username);
-        System.out.println("[SyncServer] user: " + user.toString());
 
         if (user != null) {
             String storageHashedAuthToken = (String) user.get("authorizationToken");
-            if (storageHashedAuthToken.equals(hashedAuthToken)) { // login
+            if (storageHashedAuthToken.equals(hashedAuthToken)) {
                 JSONArray data = (JSONArray) user.get("data");
-                System.out.println("[SyncServer] data.toString(): " + data.toString());
 
-                // percorre o data
-                List<Object> encryptedData = data.toList();
-                //String encryptedData = data.getString(0);// TODO pegar todos, no formato ["","",""...]
-                System.out.println("[SyncServer] encryptedData: " + encryptedData);
-                return encryptedData;
-//return encryptedData;
+                ArrayList<EncryptedData> encryptedDataList = new ArrayList();
+
+                for (Object obj : data) {
+                    JSONObject objAsJson = (JSONObject) obj;
+                    encryptedDataList.add(new EncryptedData(
+                            objAsJson.getString("data"),
+                            objAsJson.getString("Nonce")
+                    ));
+                }
+                return encryptedDataList;
             }
-            System.out.println("[SyncServer] storageHashedAuthToken !== hashedAuthToken");
             return null;
         }
-        System.out.println("[SyncServer] usernull");
+        return null;
+    }
+
+    public String getSalt(String username) {
+        JSONObject user = StorageUtil.getUser(username);
+        if (user != null) {
+            String salt = user.getString("salt");
+            return salt;
+        }
+        return null;
+    }
+
+    public String getSaltSCRYPT(String username) {
+        JSONObject user = StorageUtil.getUser(username);
+        if (user != null) {
+            String saltSCRYPT = user.getString("saltSCRYPT");
+            return saltSCRYPT;
+        }
         return null;
     }
 }

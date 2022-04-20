@@ -1,39 +1,22 @@
 [
   {
-    "authorizationToken": "0a1e82818b949be16536ac1be0d1564dfd16fcb2b86f4b072f73371fe4b40e19",
-    "data": ["d07e92a100a61abf08a2e0695feff3c4da2650986222158d"],
-    "name": "test20"
+    "authorizationToken": "1824c72042ae5dd8c21bd0a3f8d56da722890524167fc48160691fb55d71b892",
+    "salt": "4d06f6575d086f9f06b9952c78981817",
+    "data": [{
+      "Nonce": "970c0ca9dcf14f98acae27ce",
+      "data": "ec030e9fd6e409d55e28fddf49c6e8267ceca1701b6692b996a5"
+    }],
+    "saltSCRYPT": "02e7dcce3c0c29fadf888696307c77a4",
+    "name": "bob"
   },
   {
-    "authorizationToken": "9253ba199e88b76e93c1b6abe7af54c6a1a435b99f728187b546cc6e1db4b95f",
-    "data": [
-      "d07e92a100a61ace71455f05ed1e16958dc0bbc8af9ef1ef5102efd314b96d3c5e3d",
-      "d07b92a10e8f39b961a52e1b63a8d90380cc8b055678"
-    ],
-    "name": "test21"
-  },
-  {
-    "authorizationToken": "9a7faabd1b4aa6e2414d0a8be4e8d24ebeab468afaf3dd5f0edc48cf81dc0920",
-    "data": [
-      "d07e92a100a61ace71455f05ed1e16958dc0bbc8af9ef1ef5102efd314b96d3c5e3d",
-      "d07b92a10e8f39b961a52e1b63a8d90380cc8b055678"
-    ],
-    "name": "test22"
-  },
-  {
-    "authorizationToken": "3f3595676bb4037e6904a3f3d8d36836cd0253f584c959c03029f4cfc9ecaec9",
-    "data": [
-      "d07e92a100a61ace71455f05ed1e16958dc0bbc8af9ef1ef5102efd314b96d3c5e3d",
-      "d07b92a10e8f39b961a52e1b63a8d90380cc8b055678"
-    ],
-    "name": "test23"
-  },
-  {
-    "authorizationToken": "c3e2a5f31562ecf4678a7f7a579dc2197274f38214eb7d9d2ca17c02ca0ffd37",
-    "data": [
-      "d07f92b609bd09903e0a1e04e405059383c0ac15613c41ccd7c9cf86cd98e27dfb02",
-      "d07b92a10e8f39b961a52e1b63a8d90380cc8b055678"
-    ],
-    "name": "mickael"
+    "authorizationToken": "5391db7e13ff79de8b440c9144c6808720a348b4870623ce4dcc0c2c3de52567",
+    "salt": "a62b578af86b67a0e35300a46b24f673",
+    "data": [{
+      "Nonce": "4e0db4a9ab0ca5f4e3849488",
+      "data": "b183ecf76c0179b91dc2dccfc25f17d67c56f7296e9416944499f461"
+    }],
+    "saltSCRYPT": "4036065faf5094bfb0e650e7cc822e4b",
+    "name": "alice"
   }
 ]
