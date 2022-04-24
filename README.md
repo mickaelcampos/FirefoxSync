@@ -9,6 +9,8 @@ No serviço Sync, as senhas e os favoritos são armazenados no servidor e podem 
 O serviço Sync não armazena nenhuma informação sobre chaves criptográficas usadas para cifrar os dados dos clientes.
 A aplicação simula o cliente interagindo com o servidor Sync conforme a figura abaixo.
 
+<img src="https://2r4s9p1yi1fa2jd7j43zph8r-wpengine.netdna-ssl.com/files/2018/11/Sync-Blogpost1.png">
+
 A aplicação contém as seguites funcionalidades:
 
 1) Cadastrar dados do cliente;
