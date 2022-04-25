@@ -19,7 +19,7 @@ A aplicação simula o cliente (your computer) interagindo com o servidor Sync (
 
 # Detalhes técnicos:
 
-- Para derivar a senha em um token de autenticação é utilizado [PBKDF2](https://cryptobook.nakov.com/mac-and-key-derivation/pbkdf2) com 1000 iterações;
-- O token de autenticação é derivado utilizando [HKDF](https://datatracker.ietf.org/doc/html/rfc5869) com `SHA512` para posteriormente ser utilizado como chave criptografica;
-- No servidor, é utilizado o [Scrypt](https://en.wikipedia.org/wiki/Scrypt) fazer fazer hash do token com os parâmetros `N=2048` (CPU/mem), `r=8` (tamanho do bloco) e `p=1` (paralelização);
-
+- Para derivar a senha em um token de autenticação é utilizado [`PBKDF2`](https://cryptobook.nakov.com/mac-and-key-derivation/pbkdf2) com 1000 iterações;
+- O token de autenticação é derivado utilizando [`HKDF`](https://datatracker.ietf.org/doc/html/rfc5869) com `SHA512` para posteriormente ser utilizado como chave criptografica;
+- No servidor, é utilizado o [`Scrypt`](https://en.wikipedia.org/wiki/Scrypt) fazer fazer hash do token com os parâmetros `N=2048` (CPU/mem), `r=8` (tamanho do bloco) e `p=1` (paralelização);
+- Os dados são criptografadas utilizando [`AES-256`](https://cryptobook.nakov.com/symmetric-key-ciphers/aes-cipher-concepts) no modo GCM
