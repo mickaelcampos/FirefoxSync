@@ -5,6 +5,8 @@ Repositório do trabalho acadêmico sobre Criptografia Simétrica, Derivação d
 Foi baseado no projeto do serviço SYNC (https://hacks.mozilla.org/2018/11/firefox-sync-privacy/) do browser Mozilla Firefox, utilizando as bibliotecas criptográficas fornecidas pelo provedor Bouncy Castle.
 Utilizado o provedor BCFIPS que é a versão FIPS da Bouncy Castle.
 
+# Contexto do Problema
+
 No serviço Sync, as senhas e os favoritos são armazenados no servidor e podem ser acessados de qualquer dispositivo.
 O serviço Sync não armazena nenhuma informação sobre chaves criptográficas usadas para cifrar os dados dos clientes.
 A aplicação simula o cliente (your computer) interagindo com o servidor Sync (Mozilla's Server) conforme a figura abaixo:
