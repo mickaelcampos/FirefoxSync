@@ -10,7 +10,7 @@ Utilizado o provedor BCFIPS que é a versão FIPS da Bouncy Castle.
 No serviço Sync, as senhas e os favoritos são armazenados no servidor e podem ser acessados de qualquer dispositivo.
 O serviço Sync não armazena nenhuma informação sobre chaves criptográficas usadas para cifrar os dados dos clientes.
 A aplicação simula o cliente (your computer) interagindo com o servidor Sync (Mozilla's Server) conforme a figura abaixo:
-<img src="https://2r4s9p1yi1fa2jd7j43zph8r-wpengine.netdna-ssl.com/files/2018/11/Sync-Blogpost1.png](https://hacks.mozilla.org/files/2018/11/Sync-Blogpost1.png">
+![alt text](https://hacks.mozilla.org/files/2018/11/Sync-Blogpost1.png)
 
 # A aplicação contém as seguintes funcionalidades:
 
